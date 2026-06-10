@@ -2,7 +2,7 @@
 
 
 // server ka create krna starts here
-const express = require('express')  
+const express = require('express')
 
 const app = express() // here the server instance is created
 

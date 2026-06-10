@@ -1,4 +1,4 @@
-// nmp init -y => nodejs application initiate
+// npm init -y => nodejs application initiate
 // npm i express => install express package
 const express = require('express')
 

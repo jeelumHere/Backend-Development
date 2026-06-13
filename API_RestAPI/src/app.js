@@ -4,8 +4,12 @@
 // server ka create krna starts here
 const express = require('express')
 
+
+
 const app = express() // here the server instance is created
 
 // server ko create krna ends here
+
+app.use(express.json()); // using middleware so that the data can be readable
 
 module.exports = app

@@ -8,10 +8,10 @@ app.listen(3000,()=>{
 })
 
 const notes = []
-const note = []
 
 app.post('/note',(req,res)=>{
     console.log(req.body);
+    notes.push(req.body)
 })
 
 // usingpostman forthe post 

@@ -21,25 +21,43 @@ app.post("/note", async(req,res)=>{
 })
 
 
+app.get("/note", async (req,res)=>{
+
+    const note = await noteModel.find()  // find method always return an array
+
+    res.status(201).json({
+        message : "Data fetched successfully",
+        notes : note
+    })
+})
+
 // app.get("/note", async (req,res)=>{
+//     const note =  await noteModel.findOne({
+//         title : "print development"
+//     })
 
-//     const note = await noteModel.find()  // find method always return an array
-
-//     res.status(201).json({
+//     res.status(201).send({
 //         message : "Data fetched successfully",
-//         notes : note
+//         note : note
 //     })
 // })
 
-app.get("/note", async (req,res)=>{
-    const note =  await noteModel.find({
-        title : "print development"
+
+app.delete("/note/:id",async (req,res)=>{
+
+    const id = req.params.id;
+
+    await noteModel.findOneAndDelete({
+        _id: id
     })
 
     res.status(201).send({
-        message : "Data fetched successfully",
-        note : note
+        message : "Data found in database and deleted",
+
+        Deleted_id : id
+
     })
+
 })
 
 module.exports = app

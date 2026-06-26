@@ -8,23 +8,17 @@ const uploadFile = require("./services/storage.service")
 const app = express()
 const upload = multer({storage : multer.memoryStorage()})
 
-app.post("/create-post",upload.single("image"), async (req,res)=>{
-    try{
-        console.log(req.body);
-        console.log(req.file);
-
-        console.log('result is coming');
-        const result = await uploadFile(req.body.buffer)
-        console.log('just arriving');
+app.post("/create-post", upload.single("image"), async (req, res) => {
+    try {
+        const result = await uploadFile(req.file.buffer)  // ✅ req.file.buffer
         console.log(result);
-        console.log(`look above it's arrived`);
 
         res.status(200).json({
-            message : "data send successfully"
+            message: "data sent successfully"
         })
     }
-    catch(err){
-        error : err.message
+    catch (err) {
+        res.status(500).json({ error: err.message })  // ✅ actual response
     }
 })
 

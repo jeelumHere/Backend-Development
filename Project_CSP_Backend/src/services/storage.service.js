@@ -1,7 +1,10 @@
 const imageKit = require("@imagekit/nodejs")
 
+
 const imageKit01 = new imageKit({
-    privateKey : "private_gYfuI60SYAr1ba5xlsL1f51jqBI="
+    privateKey : process.env.IMAGEKIT_PRIVATE_KEY,
+    publicKey : process.env.IMAGEKIT_PUBLIC_KEY,
+    urlEndpoint : process.env.IMAGEKIT_URL_ENDPOINT
 })
 
 async function uploadFile(buffer){
@@ -14,3 +17,4 @@ async function uploadFile(buffer){
 }
 
 module.exports = uploadFile
+

@@ -14,12 +14,15 @@ app.post("/create-post", upload.single("image"), async (req, res) => {
         console.log(result);
 
         const post = postModel.create({
-            image : result.url,
-            conten : req.body.Content
+
+            imgae : result.url,
+            content : req.body.Content
+
         })
 
         res.status(200).json({
-            message: "data sent successfully"
+            message: "data sent successfully",
+            post : post
         })
     }
     catch (err) {

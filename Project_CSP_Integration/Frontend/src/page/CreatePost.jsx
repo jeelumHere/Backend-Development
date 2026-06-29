@@ -14,12 +14,12 @@ const createPost = () => {
                 </label>
 
                 <textarea
-  className='bg-white text-black p-3 border-2 border-gray-300 my-3 w-full text-sm rounded-md resize-none focus:outline-none focus:border-amber-600 transition-colors min-h-[120px]'
-  placeholder="Write your content here..."
-  name="content"
-  rows={5}
-  required
-/>
+                    className='bg-white text-black p-3 border-2 border-gray-300 my-3 w-full text-sm rounded-md resize-none focus:outline-none focus:border-amber-600 transition-colors min-h-[120px]'
+                    placeholder="Write your content here..."
+                    name="content"
+                    rows={5}
+                    required
+                />
                 <button className='bg-amber-600 font-bold hover:bg-amber-800 hover:text-white py-2 px-3 rounded-2xl hover:cursor-pointer duration-300n-' type='submit'>Submit</button>
             </div>
 

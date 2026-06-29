@@ -1,4 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from "axios"
+
+
 
 const Feed = () => {
     const [posts, setPosts] = useState([
@@ -20,6 +23,15 @@ const Feed = () => {
 
     ])
 
+    useEffect(() =>{
+        axios.get("http://localhost:3000/posts")
+        .then((res)=>{
+            console.log(res.data);
+            setPosts(res.data.data)
+        })
+    }, [])
+    
+
     return (
         <section className='max-w-2xl mx-auto px-4 py-8'>
             {posts.length > 0 ? (
@@ -36,7 +48,7 @@ const Feed = () => {
 
                             {/* Caption */}
                             <div className='p-4'>
-                                <h3 className='text-lg font-semibold text-gray-800'>{post.caption}</h3>
+                                <h3 className='text-lg font-semibold text-gray-800'>{post.content}</h3>
                             </div>
 
                         </div>

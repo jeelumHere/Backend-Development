@@ -2,11 +2,13 @@ const express = require("express")
 const { uploadFile, deleteImage } = require("./service/storage.service")
 const postModel = require("./model/post.model")
 const multer = require("multer")
+const cors = require("cors")
 
 const upload = multer({ storage: multer.memoryStorage() })
 
 const app = express()
 app.use(express.json())
+app.use(cors())
 
 app.post("/create-post", upload.array("images", 5), async (req, res) => {
     try {

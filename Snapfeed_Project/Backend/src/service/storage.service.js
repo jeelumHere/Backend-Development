@@ -14,4 +14,10 @@ async function uploadFile(file) {
     return result
 }
 
-module.exports = uploadFile
+async function deleteImage(fileId) {
+    const result = await imageKit01.files.delete(fileId)
+    return result;
+}
+
+module.exports = {uploadFile , deleteImage}
+

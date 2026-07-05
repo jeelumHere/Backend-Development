@@ -1,5 +1,5 @@
 const express = require("express")
-const uploadFile = require("./service/storage.service")
+const { uploadFile, deleteImage } = require("./service/storage.service")
 const postModel = require("./model/post.model")
 const multer = require("multer")
 
@@ -61,5 +61,64 @@ app.get("/post", async (req, res) => {
         });
     }
 })
+
+
+// delete entire post as well as all images of that post
+app.delete("/post/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const post = await postModel.findById(id);
+
+        if (!post) {
+            return res.status(404).json({ message: "Post Not Found" });
+        }
+
+        if (post.images && post.images.length) {
+            await Promise.all(
+                post.images.map(img => deleteImage(img.fileId))
+            );
+        }
+
+        await postModel.findByIdAndDelete(id);
+
+        res.status(200).json({
+            message: "Post and all images deleted successfully",
+            DeletedDataId: id
+        });
+    }
+    catch (err) {
+        res.status(500).json({ Error: err.message });
+    }
+});
+
+app.delete("/post/:postId/image/:imageId", async (req, res) => {
+    try {
+        const { postId, imageId } = req.params;
+        const post = await postModel.findById(postId);
+
+        if (!post) {
+            return res.status(404).json({ message: "Post Not Found" });
+        }
+
+        const image = post.images.id(imageId); // Mongoose subdocument lookup by _id
+
+        if (!image) {
+            return res.status(404).json({ message: "Image Not Found" });
+        }
+
+        await deleteImage(image.fileId); // remove from ImageKit
+
+        post.images.pull(imageId); // remove from array
+        await post.save();
+
+        res.status(200).json({
+            message: "Image deleted successfully",
+            DeletedImageId: imageId
+        });
+    }
+    catch (err) {
+        res.status(500).json({ Error: err.message });
+    }
+});
 
 module.exports = app

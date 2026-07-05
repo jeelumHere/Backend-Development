@@ -37,4 +37,29 @@ app.post("/create-post", upload.array("images", 5), async (req, res) => {
     }
 })
 
+app.get("/post", async (req, res) => {
+    try {
+        const post = await postModel.find();
+        console.log(post);
+
+        const imagesData = post.map(data =>
+            data.images.map(ele => ({
+                url: ele.url,
+                fileId: ele.fileId
+            }))
+        );
+        console.log(imagesData);
+
+        res.status(200).send({
+            message: "Data received successfully",
+            Data: post
+        });
+    }
+    catch (err) {
+        res.status(500).json({
+            message: err.message
+        });
+    }
+})
+
 module.exports = app

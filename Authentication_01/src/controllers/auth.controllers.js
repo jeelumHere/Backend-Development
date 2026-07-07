@@ -26,7 +26,7 @@ export async function register(req, res) {
         const user = await userModel.create({
             username,
             email,
-            hashedPassword
+            password: hashedPassword
         })
 
         const token = jwt.sign({
@@ -38,7 +38,8 @@ export async function register(req, res) {
         )
         res.status(201).json({
             message : "User created succesfully",
-            User : {username : user.username, email : user.email}
+            User : {username : user.username, email : user.email},
+            token : token
         })
     }
     catch(err){

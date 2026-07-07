@@ -48,5 +48,4 @@ export async function register(req, res) {
             Error : err.message
         })
     }
-
 }

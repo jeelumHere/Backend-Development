@@ -1,0 +1,16 @@
+import express from "express"
+import authRouter from "../src/routes/auth.routes.js"
+import morgan from "morgan"
+import multer from "multer"
+const upload = multer({storage : multer.memoryStorage()})
+
+
+
+const app = express()
+
+app.use(express.json())
+app.use(morgan("dev"))
+app.use("/api/auth", upload.single("image"),authRouter)
+
+
+export default app;

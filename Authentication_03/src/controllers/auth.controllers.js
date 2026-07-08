@@ -23,15 +23,19 @@ export async function register(req, res) {
                 message: "Username or Email already registered"
             })
         }
-        
+
         const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
-        const userData = {username,email,password : hashedPassword}
+        const userData = { username, email, password: hashedPassword }
 
         if (req.file) {
             const result = await uploadFile(req.file)
+            console.log("uploadFile result:", result)
             userData.image = result.url
         }
+
+        console.log("Userdata before create :", userData)
         const user = await userModel.create(userData)
+        console.log('use after create : ',user);
 
         const token = jwt.sign({
             id: user._id
@@ -40,12 +44,12 @@ export async function register(req, res) {
         }
 
         )
-        
 
-        
-        return ~res.status(201).json({
+
+
+        return res.status(201).json({
             message: "User Registered Successfully",
-            user: { username: user.username, email: user.email },
+            user: { username: user.username, email: user.email, image: user.image },
             token: token
         })
 

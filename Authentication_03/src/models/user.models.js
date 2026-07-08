@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
         unique : [true, "password must be unique"]
     },
     image : {
-        trype : String,
+        type : String,
     }
 })
 

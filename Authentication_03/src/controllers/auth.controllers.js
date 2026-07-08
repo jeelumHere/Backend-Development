@@ -35,7 +35,7 @@ export async function register(req, res) {
 
         console.log("Userdata before create :", userData)
         const user = await userModel.create(userData)
-        console.log('use after create : ',user);
+        console.log('use after create : ', user);
 
         const token = jwt.sign({
             id: user._id
@@ -62,4 +62,69 @@ export async function register(req, res) {
             Error: err.message
         })
     }
+}
+
+// export async function getMe(req, res) {
+
+//     try {
+//         const token = req.headers.authorization?.slice(" ")[1]
+
+//         if (!token) {
+//             return res.status(401).json({
+//                 message: "Token Does not exist"
+//             })
+//         }
+
+//         const docoded = jwt.verify(token, config.jwtSecret)
+//         console.log(decoded)
+
+//         const user = await userModel.findById(decoded.id);
+
+
+//         res.status(200).json({
+//             message: "Data Fecthed Successfully",
+//             User: { username: user.username, email: user.email }
+//         })
+//     }
+//     catch(err){
+//         res.status(500).json({
+//             Messsage : "Server Error",
+//             Error : err.message
+//         })
+//     }
+// }
+
+
+export async function getMe(req, res) {
+
+    try {
+        const token = req.headers.authorization?.split(" ")[1]
+
+        if (!token) {
+            return res.status(401).json({
+                message: "Token Doesn't Exist"
+            })
+        }
+
+        const decoded = jwt.verify(token, config.jwtSecret)
+
+        console.log(decoded)
+
+        const user = await userModel.findById(decoded.id);
+
+
+        res.status(200).json({
+            message: "User Fetched Successfully",
+            user: { username: user.username, email: user.email,image : user.image}
+        })
+    }
+    catch(err){
+        res.status(500).json({
+            message  : "Server Error",
+            error : err.message
+        })
+    }
+
+
+
 }

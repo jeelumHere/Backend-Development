@@ -3,6 +3,7 @@ import config from "../config/config.js"
 import crypto from "crypto"
 import uploadFile from "../services/storage.service.js"
 import jwt from "jsonwebtoken"
+import sessionModel from "../model/session.model.js"
 
 
 
@@ -52,6 +53,12 @@ export async function register(req, res) {
 
 
         const user = await userModel.create(userData)
+        
+        const refreshToken = jwt.sign({
+            id: user._id
+        }, config.jwtSecret, {
+            expiresIn: "7d"
+        })
 
         const accessToken = jwt.sign({
             id: user._id
@@ -59,17 +66,21 @@ export async function register(req, res) {
             expiresIn: "15m"
         })
 
-        const refreshToken = jwt.sign({
-            id: user._id
-        }, config.jwtSecret, {
-            expiresIn: "7d"
-        })
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: true,
             sameSite: "Strict",
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7days
+        })
+
+        const refreshTokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex")
+
+        const session = await sessionModel.create({
+            userId : user._id,
+            refreshTokenHash : refreshTokenHash,
+            ip : req.ip,
+            userAgent : req.headers[ 'user-agent' ]
         })
 
 

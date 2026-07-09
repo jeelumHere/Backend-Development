@@ -13,6 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "@imagekit/nodejs": "^7.9.1",
+    "cookie-parser": "^1.4.7",
+    "cookies-parser": "^1.2.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",

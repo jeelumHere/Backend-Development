@@ -12,4 +12,8 @@ authRouter.post("/register",authControllers.register)
 
 authRouter.post("/getMe",authControllers.getMe)
 
+// GET  =>  /api/auth/refreshToken
+
+authRouter.get("/refreshToken",authControllers.refreshToken)
+
 export default authRouter;

@@ -116,26 +116,50 @@ export async function getMe(req, res) {
 
 
 export async function refreshToken(req, res) {
-    const refreshToken = req.cookies.refreshToken;
 
-    console.log(refreshToken);
+    try {
+        const refreshToken = req.cookies.refreshToken;
 
-    if (!refreshToken) {
-        res.status(401).json({
-            message: "RefreshToken Not Found"
+
+
+        if (!refreshToken) {
+            res.status(401).json({
+                message: "RefreshToken Not Found"
+            })
+        }
+
+        const decoded = jwt.verify(refreshToken, config.jwtSecret)
+
+        
+        const newRefreshToken = jwt.sign({
+            id: decoded.id
+        }, config.jwtSecret, {
+            expiresIn: "7d"
+        })
+
+        const accessToken = jwt.sign({
+            id: decoded.id
+        }, config.jwtSecret, {
+            expiresIn: "15m"
+        })
+
+
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        })
+
+        res.status(200).json({
+            message: "Access Token Refreshed Successfully",
+            accessToken
         })
     }
-
-    const decoded = jwt.verify(refreshToken, config.jwtSecret)
-
-    const accessToken = jwt.sign({
-        id: decoded.id
-    }, config.jwtSecret, {
-        expiresIn: "15m"
-    })
-
-    res.status(200).json({
-        message : "Access Token Refreshed Successfully",
-        accessToken
-    })
+    catch (err) {
+        res.status(500).json({
+            message: "Servver Error",
+            error: err.message
+        })
+    }
 }

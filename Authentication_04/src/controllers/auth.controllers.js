@@ -101,22 +101,82 @@ export async function register(req, res) {
 
 }
 
+export async function login(req, res) {
+    try {
+        const { email, password } = req.body;
+
+        const user = await userModel.findOne({ email }).select("+password")
+
+        if (!user) {
+            return res.status(401).json({
+                message: "Invalid Email"
+            })
+        }
+
+        const hashedPassword = crypto.createHash("sha256").update(password).digest("hex")
+
+        console.log(hashedPassword);
+        console.log(user);
+        
+        
+
+        if (hashedPassword !== user.password) {
+            return res.status(401).json({
+                message: "Invalid Password."
+            })
+        }
+
+        const refreshToken = jwt.sign({ id: user._id }, config.jwtSecret, { expiresIn: "7d" })
+
+        const refreshTokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex")
+
+        const accessToken = jwt.sign({ id: user._id }, config.jwtSecret, { expiresIn: "15m" })
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days 
+        })
+
+        const session = await sessionModel.create({
+            userId: user._id,
+            refreshTokenHash: refreshTokenHash,
+            ip: req.ip,
+            userAgent: req.headers["user-agent"]
+        })
+
+        const safeUser = user.toObject();
+        delete safeUser.password;
+
+        res.status(200).json({
+            message : "Log in successfully",
+            User : safeUser
+        })
+    }
+
+    catch(err){
+        res.status(500).json({
+            message : "Server error",
+            Error : err.message,
+            Root : "Login"
+        })
+    }
+
+}
+
 export async function getMe(req, res) {
     try {
         const token = req.headers.authorization?.split(" ")[1]
 
-        console.log('1...');
 
         if (!token) {
             return res.status({
                 message: "Token does not exist"
             })
         }
-        console.log('2...');
 
         const decoded = jwt.verify(token, config.jwtSecret)
-        console.log('3...');
-        console.log(decoded);
 
         const user = await userModel.findById(decoded.id)
 
@@ -144,12 +204,12 @@ export async function refreshToken(req, res) {
 
         const session = await sessionModel.findOne({
             refreshTokenHash,
-            rovoked : false
+            rovoked: false
         })
 
-        if(!session){
+        if (!session) {
             return res.status(401).json({
-                message : "Invalid refresh token"
+                message: "Invalid refresh token"
             })
         }
 
@@ -161,7 +221,8 @@ export async function refreshToken(req, res) {
         })
 
         newRefreshTokenHash = crypto.createHash("sha256").update(newRefreshToken).digest("hex")
-        session.refreshTokenHash = newRefreshTokenHash 
+        session.refreshTokenHash = newRefreshTokenHash
+        session.save()
 
         const accessToken = jwt.sign({
             id: decoded.id
@@ -191,7 +252,6 @@ export async function refreshToken(req, res) {
 
 export async function logout(req, res) {
     try {
-        console.log('1...');
         const refreshToken = req.cookies.refreshToken;
 
         if (!refreshToken) {
@@ -225,12 +285,44 @@ export async function logout(req, res) {
 
     }
 
-    catch(err){
+    catch (err) {
         res.status(500).json({
-            message : "Server Error",
-            Error : err.message,
-            root : "Loged Out API"
+            message: "Server Error",
+            Error: err.message,
+            root: "Loged Out API"
         })
     }
 }
 
+export async function logoutAll(req, res) {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(401).json({
+                message: "Refresh Token Not found"
+            })
+        }
+
+        const decoded = jwt.verify(refreshToken, config.jwtSecret)
+
+        await sessionModel.updateMany({
+            userId: decoded.id,
+            revoked: false
+        }, {
+            revoked: true
+        })
+
+        res.clearCookie("refreshToken");
+
+        res.status(200).json({
+            messagee: "Loged Out from all devices successfully"
+        })
+    }
+    catch (err) {
+        res.status(500).json({
+            message: "Server error",
+            Error: err.message
+        })
+    }
+}

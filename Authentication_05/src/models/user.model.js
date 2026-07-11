@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
         required : [true,"password is required"],
         select : false
     },
+    verified : {
+        type : Boolean,
+        default : false
+    },
     // An array that holds multiple avatar objects
     avatars: [{
         url : {type:String},

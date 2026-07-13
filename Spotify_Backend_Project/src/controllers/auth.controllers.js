@@ -56,12 +56,6 @@ export async function login(req, res) {
             return res.status(401).json({
                 message: "Invalid email or username"
             })
-        } 
-        
-        if (user.verified) {
-            return res.status(401).json({
-                message: "user already logged in"
-            })
         }
 
         const isCorrectPassword = await bcrypt.compare(password, user.password)
@@ -79,12 +73,16 @@ export async function login(req, res) {
         await user.save()
 
 
-        const session = await sessionModel.create({
-            user: user._id,
-            refreshTokenHash,
-            ipAddress: req.ip,
-            userAgent: req.headers["user-agent"],
-        })
+        const session = await sessionModel.findOneAndUpdate(
+            { user: user._id, userAgent: req.headers["user-agent"] },
+            {
+                refreshTokenHash,
+                ipAddress: req.ip,
+                userAgent: req.headers["user-agent"],
+                revoked: false
+            },
+            { upsert: true, new: true }
+        )
 
         const safeUser = user.toObject();
         delete safeUser.password
@@ -99,7 +97,8 @@ export async function login(req, res) {
 
         res.status(200).json({
             message: "Logged In Successfully",
-            User: safeUser
+            User: safeUser,
+            accessToken
         })
     }
     catch (err) {
@@ -121,9 +120,11 @@ export async function logout(req, res) {
             })
         }
         const decoded = jwt.verify(refreshToken, config.jwtSecret)
+        const user = await userModel.findById(decoded.id)
 
         const session = await sessionModel.findOne({
             user: decoded.id,
+            userAgent: req.headers["user-agent"],
             revoked: false
         })
 
@@ -140,14 +141,12 @@ export async function logout(req, res) {
         }
 
         session.revoked = true;
-        session.save()
-        user.verified = false
-        user.save()
+        await session.save()
 
         res.clearCookie("refreshToken")
 
         return res.status(200).json({
-            message: "LOgout successfull"
+            message: "Logout successfull"
         })
     }
     catch (err) {
@@ -157,3 +156,77 @@ export async function logout(req, res) {
         })
     }
 }
+
+export async function refreshToken(req, res) {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(401).json({
+                message: "Refresh token not found"
+            })
+        }
+        const decoded = jwt.verify(refreshToken, config.jwtSecret)
+        const user = await userModel.findById(decoded.id)
+        if(!user){
+            return res.status(401).json({
+                message : "Invaid credentials"
+            })
+        }
+
+        const session = await sessionModel.findOne({
+            user : user._id,
+            userAgent: req.headers["user-agent"],
+            revoked: false
+        })
+
+        if(!session){
+            return res.status(401).json({
+                message : "Invaid credentials"
+            })
+        }
+
+
+        const isValidSession = await bcrypt.compare(refreshToken, session.refreshTokenHash)
+
+        if (!isValidSession) {
+            return res.status(401).json({
+                message: "Session not found"
+            })
+        }
+
+        
+
+
+        const newRefreshToken = jwt.sign({ id: user._id, role: user.role }, config.jwtSecret, { expiresIn: "7d" })
+        const newRefreshTokenHash = await bcrypt.hash(newRefreshToken, 10)
+
+        const accessToken = jwt.sign({ id: user._id, role: user.role }, config.jwtSecret, { expiresIn: "15m" })
+
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+        session.refreshTokenHash = newRefreshTokenHash
+        await session.save()
+
+        return res.status(200).json({
+            message : "Token Refreshed",
+            accessToken
+        })
+    }
+    catch(err){
+        return res.status(500).json({
+            message : "Server Error",
+            error : err.message
+        })
+    }
+
+
+}
+
+// export async function logoutAll(req, res) {
+
+// }

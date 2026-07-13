@@ -168,21 +168,21 @@ export async function refreshToken(req, res) {
         }
         const decoded = jwt.verify(refreshToken, config.jwtSecret)
         const user = await userModel.findById(decoded.id)
-        if(!user){
+        if (!user) {
             return res.status(401).json({
-                message : "Invaid credentials"
+                message: "Invaid credentials"
             })
         }
 
         const session = await sessionModel.findOne({
-            user : user._id,
+            user: user._id,
             userAgent: req.headers["user-agent"],
             revoked: false
         })
 
-        if(!session){
+        if (!session) {
             return res.status(401).json({
-                message : "Invaid credentials"
+                message: "Invaid credentials"
             })
         }
 
@@ -195,7 +195,7 @@ export async function refreshToken(req, res) {
             })
         }
 
-        
+
 
 
         const newRefreshToken = jwt.sign({ id: user._id, role: user.role }, config.jwtSecret, { expiresIn: "7d" })
@@ -213,20 +213,44 @@ export async function refreshToken(req, res) {
         await session.save()
 
         return res.status(200).json({
-            message : "Token Refreshed",
+            message: "Token Refreshed",
             accessToken
         })
     }
-    catch(err){
+    catch (err) {
         return res.status(500).json({
-            message : "Server Error",
-            error : err.message
+            message: "Server Error",
+            error: err.message
         })
     }
 
 
 }
 
-// export async function logoutAll(req, res) {
+export async function logoutAll(req, res) {
+    try {
+        const refreshToken = req.cookies.refreshToken
 
-// }
+        if (!refreshToken) {
+            return res.status(201).json({
+                message: "Refresh token not found"
+            })
+        }
+        const decoded = jwt.verify(refreshToken, config.jwtSecret)
+
+        await sessionModel.deleteMany({ user: decoded.id })
+        const user = await userModel.findById(decoded.id)
+
+        res.clearCookie("refreshToken")
+        return res.status(200).json({
+            message : "Log out fromm all devices",
+            User : user
+        })
+    }
+    catch(err){
+        return res.status(500).json({
+            messag : "Server error",
+            error : err.message
+        })
+    }
+}

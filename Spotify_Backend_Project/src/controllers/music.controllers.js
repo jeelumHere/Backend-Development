@@ -62,3 +62,36 @@ export async function createAlbum(req, res) {
         })
     }
 }
+
+
+export async function getAllMusic(req,res){
+    const music = await musicModel.find()
+    .populate("artist")
+    if(!music){
+        return res.status(401).json({
+            error: 'Music notfound'
+        })
+    }
+    else{
+        return res.status(200).json({
+            message: 'All Music Fethced successfully',
+            Music : music
+        })
+    }
+}
+
+
+export async function getAllAlbum(req,res){
+    const albums = await albumModel.find().select("title genre").populate("artist")
+    if(!albums){
+        return res.status(401).json({
+            error: 'Albums not found'
+        })
+    }
+    else{
+        res.status(200).json({
+            message : "All Albums fetched",
+            Albums : albums
+        })
+    }
+}

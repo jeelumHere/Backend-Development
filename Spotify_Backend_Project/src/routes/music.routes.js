@@ -6,6 +6,8 @@ const musicRouter = Router()
 
 musicRouter.post("/createMusic",musicController.createMusic)
 musicRouter.post("/createAlbum",musicController.createAlbum)
+musicRouter.get("/",musicController.getAllMusic)
+musicRouter.get("/getAllAlbum",musicController.getAllAlbum)
 
 
 export default musicRouter

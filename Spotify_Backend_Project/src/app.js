@@ -14,5 +14,5 @@ app.use(morgan("dev"))
 app.use(cookieParser())
 app.use("/api/auth",authRouter)
 app.use("/api/music",authMiddleware.authArtist,upload.single("music"),musicRouter)
-
+app.use("/api/music",authMiddleware.authUser,musicRouter)
 export default app

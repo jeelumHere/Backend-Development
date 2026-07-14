@@ -11,8 +11,8 @@ if(!process.env.JWT_SECRET){
 if(!process.env.PRIVATE_KEY){
     throw new Error("PRIVATE_KEY not present in environmental variables")
 }
-if(!process.env.JWT_SECRET){
-    throw new Error("JWT_SECRET not present in environmental variables")
+if(!process.env.PUBLIC_KEY){
+    throw new Error("PUBLIC_KEY not present in environmental variables")
 }
 
 const config = {

@@ -11,8 +11,7 @@ const app = express()
 app.use(express.json())
 app.use(morgan("dev"))
 app.use(cookieParser())
-
 app.use("/api/auth",authRouter)
-app.use("/api/music",musicRouter)
+app.use("/api/music",upload.single("uri"),musicRouter)
 
 export default app

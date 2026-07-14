@@ -5,3 +5,6 @@ import {Router} from "express"
 const musicRouter = Router()
 
 musicRouter.post("/createMusic",musicController.createMusic)
+
+
+export default musicRouter

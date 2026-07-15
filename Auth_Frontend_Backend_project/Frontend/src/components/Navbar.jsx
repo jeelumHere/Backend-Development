@@ -1,9 +1,9 @@
 import React from 'react'
-import logo from "../assets/logo.png"
+import logo from "../assets/logo.jpg"
 import { NavLink, Link } from 'react-router-dom'
 
 const navLinks = [
-    { to: "/", label: "home" },
+    { to: "/", label: "Home" },
     { to: "/about", label: "About" },
     { to: "/contact", label: "Contact" },
     { to: "/detail", label: "Details" },
@@ -16,7 +16,7 @@ const Navbar = () => {
         <nav className='px-10 py-4 bg-amber-50 flex justify-between items-center'>
 
             {/* logo / directs to the home page */}
-            <Link to="/" className='w-14 h-14 flex justify-center items-center'>
+            <Link to="/" className='w-18 h-18~ flex justify-center items-center'>
                 <img src={logo} alt="Security Logo" />
             </Link>
 

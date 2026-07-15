@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React from 'react'
+import axios from 'axios'
 
 const inputData = [
     { text: "Enter Email", data: "email", placeholder: "Email", type: "email" },
@@ -6,49 +7,50 @@ const inputData = [
     { text: "Enter Password", data: "password", placeholder: "Password", type: "password" },
 ]
 
-const Singup = () => {
-    const handleSubmit = async (ele) => {
-        e.preventDefault()
-        const formData = new FormData(ele.target)
+const Signup = () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
 
-        axios.post("http://localhost:3000/api/auth/register", formData)
-        .then(e=>{
-            console.log(e.data)
-        })
-        .catch(e=>{
-            console.log(e);
-        })
+        try {
+            const res = await axios.post(
+                "http://localhost:3000/api/auth/register",
+                formData
+            )
+            console.log(res.data);
+        } catch (err) {
+            console.log(err);
+        }
     }
+
     return (
-        <>
-            <section className='flex justify-center items-center h-[80vh] w-full'>
-                <form onSubmit={handleSubmit} className='bg-amber-100 p-6 rounded-lg flex flex-col w-full max-w-sm shadow-md'>
-                    <h2 className='text-xl font-semibold mb-4 text-center'>Sign Up</h2>
+        <section className='flex justify-center items-center h-[80vh] w-full'>
+            <form onSubmit={handleSubmit} className='bg-amber-100 p-6 rounded-lg flex flex-col w-full max-w-sm shadow-md'>
+                <h2 className='text-xl font-semibold mb-4 text-center'>Sign Up</h2>
 
-                    {inputData.map((ele,id) => (
-                        <div className='flex flex-col ' key={id}>
-                            <label htmlFor={ele.data} className='text-sm font-medium mb-1'>{ele.text}</label>
-                            <input
-                                id={ele.data}
-                                name={ele.data}
-                                className='border border-gray-300 p-2 rounded-md mb-3 outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400'
-                                type={ele.type}
-                                placeholder={ele.placeholder}
-                                required
-                            />
-                        </div>
-                    ))}
+                {inputData.map((ele) => (
+                    <div className='flex flex-col' key={ele.data}>
+                        <label htmlFor={ele.data} className='text-sm font-medium mb-1'>{ele.text}</label>
+                        <input
+                            id={ele.data}
+                            name={ele.data}
+                            className='border border-gray-300 p-2 rounded-md mb-3 outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400'
+                            type={ele.type}
+                            placeholder={ele.placeholder}
+                            required
+                        />
+                    </div>
+                ))}
 
-                    <button
-                        type="submit"
-                        className='px-3 py-2 rounded-md cursor-pointer bg-green-400 text-white font-medium hover:bg-green-500 transition-colors'
-                    >
-                        Sign up
-                    </button>
-                </form>
-            </section>
-        </>
+                <button
+                    type="submit"
+                    className='px-3 py-2 rounded-md cursor-pointer bg-green-400 text-white font-medium hover:bg-green-500 transition-colors'
+                >
+                    Sign up
+                </button>
+            </form>
+        </section>
     )
 }
 
-export default Singup
+export default Signup

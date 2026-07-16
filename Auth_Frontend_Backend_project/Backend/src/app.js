@@ -13,7 +13,10 @@ const app = express()
 app.use(express.json())
 app.use(morgan("dev"))
 app.use(cookieParser())
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:5173", // exact frontend origin, no wildcard
+    credentials: true
+}));
 app.use("/api/auth", upload.none(), authRouter)
 app.use("/api/music",authMiddleware.authArtist,upload.single("music"),musicRouter)
 app.use("/api/music",authMiddleware.authUser,musicRouter)

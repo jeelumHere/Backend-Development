@@ -90,9 +90,10 @@ export async function login(req, res) {
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: "Strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            secure: process.env.NODE_ENV === "production", // false locally, true in prod
+            sameSite: "Lax", // "Strict" can still cause edge-case issues too, Lax is safer for now
+            path: "/",
+            maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
         res.status(200).json({
@@ -152,6 +153,51 @@ export async function logout(req, res) {
     catch (err) {
         return res.status(500).json({
             message: "Server error",
+            error: err.message
+        })
+    }
+}
+
+export async function getMe(req, res) {
+    try {
+        const refreshToken = req.cookies.refreshToken
+        if (!refreshToken) {
+            return res.status(401).json({
+                message: 'refresh token not found'
+            })
+        }
+
+        const decoded = jwt.verify(refreshToken, config.jwtSecret)
+        if (!decoded) {
+            return res.status(401).json({
+                message: 'Invalid token'
+            })
+        }
+
+        const session = await sessionModel.findOne({ userAgent: req.headers['user-agent'], revoked: false, user: decoded.id })
+
+        if (!session) {
+            return res.status(401).json({
+                message: "session not found"
+            })
+        }
+        const isValidToken = await bcrypt.compare(refreshToken, session.refreshTokenHash)
+        if (!isValidToken) {
+            return res.status(401).json({
+                message: "Token not verified"
+            })
+        }
+
+        const user = await userModel.findById(decoded.id)
+
+        return res.status(200).json({
+            message: "User Found in database",
+            User: user
+        })
+    }
+    catch (err) {
+        return res.status(500).json({
+            message: "Server Error",
             error: err.message
         })
     }
@@ -243,14 +289,14 @@ export async function logoutAll(req, res) {
 
         res.clearCookie("refreshToken")
         return res.status(200).json({
-            message : "Log out fromm all devices",
-            User : user
+            message: "Log out fromm all devices",
+            User: user
         })
     }
-    catch(err){
+    catch (err) {
         return res.status(500).json({
-            messag : "Server error",
-            error : err.message
+            messag: "Server error",
+            error: err.message
         })
     }
 }

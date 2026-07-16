@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const inputData = [
     { text: "Enter Username", data: "username", placeholder: "Username", type: "text" },
@@ -9,6 +10,7 @@ const inputData = [
 
 const Login = () => {
 
+    const navigation = useNavigate()
     const [responseMsg, setResponseMsg] = useState('')
 
     const handleSubmit = async (e) => {
@@ -18,9 +20,13 @@ const Login = () => {
         try {
             const res = await axios.post(
                 "http://localhost:3000/api/auth/login",
-                formData
+                formData,
+                {withCredentials:true}
             );
             setResponseMsg(res.data.message);
+            setTimeout(() => {
+                navigation("/")
+            }, 3000);
         } catch (err) {
             if (err.response) {
                 // server responded with a status outside 2xx (409 conflict, 401, 500, etc.)

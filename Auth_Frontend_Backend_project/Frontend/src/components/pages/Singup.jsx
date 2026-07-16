@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 const inputData = [
@@ -8,6 +9,7 @@ const inputData = [
 ]
 
 const Signup = () => {
+    const navigate = useNavigate()
     const [responseMsg, setResponseMsg] = useState('')
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,6 +21,9 @@ const Signup = () => {
                 formData
             );
             setResponseMsg(res.data.message);
+            setTimeout(() => {
+                navigate("/login")
+            }, 3000);
         } catch (err) {
             if (err.response) {
                 // server responded with a status outside 2xx (409 conflict, 401, 500, etc.)

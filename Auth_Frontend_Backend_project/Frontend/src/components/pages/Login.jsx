@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 
 const inputData = [
@@ -9,18 +9,32 @@ const inputData = [
 
 const Login = () => {
 
+    const [responseMsg, setResponseMsg] = useState('')
+
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        const formData = new FormData(e.target)
+        e.preventDefault();
+        const formData = new FormData(e.target);
 
         try {
-            const res = await axios.post("http://localhost:3000/api/auth/login", formData)
-            console.log(res.data)
+            const res = await axios.post(
+                "http://localhost:3000/api/auth/login",
+                formData
+            );
+            setResponseMsg(res.data.message);
+        } catch (err) {
+            if (err.response) {
+                // server responded with a status outside 2xx (409 conflict, 401, 500, etc.)
+                setResponseMsg(err.response.data.message || "Something went wrong");
+            } else if (err.request) {
+                // request went out, no response came back (server down, network issue)
+                setResponseMsg("No response from server. Please try again.");
+            } else {
+                // something broke setting up the request itself
+                setResponseMsg("Unexpected error occurred.");
+            }
+            console.log(err);
         }
-        catch (err) {
-            console.log(err)
-        }
-    }
+    };
 
     return (
         <section className='flex justify-center items-center h-[80vh] w-full'>
@@ -47,6 +61,7 @@ const Login = () => {
                 >
                     Login
                 </button>
+                <div className='text-green-700 mt-2'>{responseMsg}</div>
             </form>
         </section>
     )

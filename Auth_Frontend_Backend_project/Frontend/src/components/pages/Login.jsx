@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import AxiosApi from '../api/AxiosApi'
 
 const inputData = [
     { text: "Enter Username", data: "username", placeholder: "Username", type: "text" },
@@ -18,10 +19,9 @@ const Login = () => {
         const formData = new FormData(e.target);
 
         try {
-            const res = await axios.post(
-                "http://localhost:3000/api/auth/login",
+            const res = await AxiosApi.post(
+                "/auth/login",
                 formData,
-                {withCredentials:true}
             );
             setResponseMsg(res.data.message);
             setTimeout(() => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import AxiosApi from '../api/AxiosApi'
 
 const inputData = [
     { text: "Enter Email", data: "email", placeholder: "Email", type: "email" },
@@ -16,8 +17,8 @@ const Signup = () => {
         const formData = new FormData(e.target);
 
         try {
-            const res = await axios.post(
-                "http://localhost:3000/api/auth/register",
+            const res = await AxiosApi.post(
+                "/auth/register",
                 formData
             );
             setResponseMsg(res.data.message);

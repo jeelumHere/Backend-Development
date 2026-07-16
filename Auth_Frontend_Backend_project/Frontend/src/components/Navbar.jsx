@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import logo from "../assets/logo.jpg"
 import { NavLink, Link } from 'react-router-dom'
 import axios from "axios"
+import AxiosApi from './api/AxiosApi'
 
 const navLinks = [
     { to: "/", label: "Home" },
@@ -12,15 +13,15 @@ const navLinks = [
 const Navbar = () => {
 
     const [responseMsg, setResponseMsg] = useState('')
-    const isVerified = false
+    const [isVerified, setIsVerified] = useState(false)
     useEffect(() => {
         async function getMe() {
             try {
-                const res = await axios.get("http://localhost:3000/api/auth/getMe", {
-                    withCredentials: true
+                const res = await AxiosApi.get("/auth/getMe", {
                 })
                 console.log(res.data);
-                isVerified = res.data.User.verified
+                await setIsVerified(res.data.User.verified)
+                console.log(isVerified);
             }
             catch (err) {
                 if (err.response) {
@@ -40,6 +41,23 @@ const Navbar = () => {
         getMe()
     }, [])
 
+    const logoutMe = async () => {
+        try {
+            const res = await AxiosApi.get('/auth/logout')
+            console.log(res.data);
+        }
+        catch (err) {
+            if(err.response){
+                setResponseMsg(err.response.data.message || "Something went wrong")
+            }
+            else if(err.request){
+                setResponseMsg("server did not send any response")
+            }
+            else{
+                setResponseMsg("server side error")
+            }
+        }
+    }
 
     const baseLiStyle = 'p-1 rounded-md duration-500 cursor-pointer hover:bg-green-400 hover:text-white';
     const activeStyle = 'bg-green-400 text-white';
@@ -61,8 +79,8 @@ const Navbar = () => {
                 ))}
             </ul>
 
-            {res.data.User.verified ? (
-                <button
+            {isVerified ? (
+                <button onClick={logoutMe}
                     className='bg-green-400 hover:bg-green-600 text-white px-2 py-1 rounded-md cursor-pointer'
                 >
                     Logout

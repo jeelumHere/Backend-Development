@@ -59,6 +59,12 @@ const Signup = () => {
                     </div>
                 ))}
 
+                <label htmlFor="role" className='font-semibold mb-1'>Select Role</label>
+                <select name="role" id="role" className='bg-amber-50 gap-1 p-2 mb-2'>
+                    <option value="user">user</option>
+                    <option value="artist">artist</option>
+                </select>
+
                 <button
                     type="submit"
                     className='px-3 py-2 rounded-md cursor-pointer bg-green-400 text-white font-medium hover:bg-green-500 transition-colors'

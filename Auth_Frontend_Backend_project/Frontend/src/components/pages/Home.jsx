@@ -3,6 +3,9 @@ import AxiosApi from '../api/AxiosApi'
 import Navbar from "../Navbar"
 
 const Home = () => {
+
+  const [myMusic, setMyMusic] = useState([])
+
   const [msgResponse, setMsgResponse] = useState('')
   const [msgResponse02, setMsgResponse02] = useState('')
   const [isArtist, setIsArtist] = useState(false)
@@ -13,7 +16,7 @@ const Home = () => {
     async function runApi() {
       try {
         const res = await AxiosApi.get("/auth/getMe");
-
+        
         if (isMounted) {
           const userRole = res?.data?.User?.role;
           setIsArtist(userRole === "artist");
@@ -40,6 +43,30 @@ const Home = () => {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    const runApi = async () => {
+      try {
+        const res = await AxiosApi.get("/music/getAllMusic")
+        console.log(res.data.message);
+        setMyMusic(res.data.Music)
+      }
+      catch (err) {
+        if (err.response) {
+          console.log(err.response.data?.message || "Something went wrong");
+        }
+        else if (err.request) {
+          console.log("No response received from server");
+        }
+        else {
+          console.log("Error setting up request: ", err.message);
+        }
+      }
+    }
+    runApi()
+
+  }, [])
+
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -69,9 +96,9 @@ const Home = () => {
   return (
     <>
       <Navbar />
-    
-      <section className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        {isArtist ? (
+
+      <section className="bg-gray-50 flex items-center justify-center p-6">
+        {isArtist  ? (
           <div className="w-full max-w-lg bg-white rounded-xl shadow-md border border-gray-100 p-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Music</h1>
 
@@ -133,8 +160,31 @@ const Home = () => {
           </div>
         ) : ('')}
       </section>
+
+      <h1 className='text-center font-semibold text-4xl my-4'>Music is here!!</h1>
+      <section className='px-8 mb-10 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
+
+        {myMusic.map((ele, index) => (
+
+          <div key={index} className='bg-red-200 p-6 rounded-lg flex flex-col gap-2'>
+
+            <h1 className='text-3xl text-orange-900'>{ele.title}</h1>
+
+            <h2 className='text-xl text-green-600'>{ele.genre}</h2>
+            <h2 className='text-xl text-green-600'>Artist : {ele.artist.username}</h2>
+
+            <audio controls className="w-full">
+              <source src={ele.uri} />
+            </audio>
+
+          </div>
+        ))}
+
+      </section>
     </>
   );
 };
 
 export default Home;
+
+

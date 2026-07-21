@@ -1,19 +1,30 @@
-// jest     =>   It is a package which is used to test the code of javascript
-
-// supertest    =>  It is a package needed for package jest so that it can test express() code of javascript
-
 const request = require("supertest")
 
 const app = require("../app")
 
-describe("GET /", ()=>{
-    it("should return 200 ok", async ()=>{
+describe("POST /user",()=>{
 
-        const res = await request(app).get("/")
+    it("should return 400 when email is missing",async()=>{
 
-        expect(res.statusCode).toBe(200)
-        expect(res.body).toEqual({message : "Hello World!!"})
+        const res = await request(app).post("/user").send({email:"test@test.com"})
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body).toEqual({message : "Name not found"})
     })
+
+    it("should return 400 when name is missing", async()=>{
+
+        const res = await request(app).post("/user").send(({name : "Sharjil"}))
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body).toEqual({message : "Email not found"})
+    })
+
+    it("should return 201 when name and email are found", async ()=>{
+        const res = await request(app).post("/user").send({email: 'test@test.com', name :"sharjeel"})
+
+        expect(res.statusCode).toBe(201)
+        expect(res.body).toEqual({message : "User created"})
+    })
+
 })
-
-

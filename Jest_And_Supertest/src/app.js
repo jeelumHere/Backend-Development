@@ -1,5 +1,7 @@
 const express = require("express")
 
+const userValidation = require("./middleware/validation.middleware")
+
 const app = express()
 
 app.use(express.json())
@@ -62,6 +64,14 @@ app.get("/product",(req,res)=>{
 
     return res.status(200).json({
         category : req.query.category,
+    })
+})
+
+app.post("/register",userValidation.userRegisterValidationRules, (req,res)=>{
+    const {username,email,password} = req.body
+
+    return res.status(201).json({
+        message : "User registered successfully"
     })
 })
 

@@ -1,4 +1,6 @@
 import { body, validationResult } from "express-validator"
+import jwt from "jsonwebtoken"
+
 
 async function validateResult(req, res, next) {
     const error = validationResult(req)
@@ -47,4 +49,24 @@ const userLoginValidationRules = [
 
     validateResult
 ]
-export { userRegistrationValidationRules, userLoginValidationRules }
+
+// authMiddleware.js
+
+
+const verifyAccessToken = (req, res, next) => {
+  const authHeader = req.headers.authorization; // "Bearer eyJhbGciOi..."
+  const token = authHeader?.split(" ")[1];
+
+  if (!token) return res.status(401).json({ message: "No token provided" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    req.user = decoded; // now the rest of your route knows who's making the request
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+  next()
+};
+
+export { userRegistrationValidationRules, userLoginValidationRules, verifyAccessToken }

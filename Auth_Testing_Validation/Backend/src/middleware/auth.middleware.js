@@ -1,6 +1,6 @@
 import { body, validationResult } from "express-validator"
 import jwt from "jsonwebtoken"
-
+import config from "../config/config.js"
 
 async function validateResult(req, res, next) {
     const error = validationResult(req)
@@ -60,13 +60,12 @@ const verifyAccessToken = (req, res, next) => {
   if (!token) return res.status(401).json({ message: "No token provided" });
 
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decoded = jwt.verify(token, config.jwtSecret);
     req.user = decoded; // now the rest of your route knows who's making the request
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(401).json({ message: "Invalid or expired token",error:err.message });
   }
-  next()
 };
 
 export { userRegistrationValidationRules, userLoginValidationRules, verifyAccessToken }

@@ -13,5 +13,6 @@ app.use(cookieParser())
 app.use(morgan("dev"))
 app.use(cors())
 app.use("/api/auth",upload.none(),authRouter)
+app.use("/api/auth",authRouter)
 
 export default app

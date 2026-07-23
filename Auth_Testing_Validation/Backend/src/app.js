@@ -11,7 +11,10 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(morgan("dev"))
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5173' ,
+    credentials: true,
+}))
 app.use("/api/auth",upload.none(),authRouter)
 app.use("/api/auth",authRouter)
 

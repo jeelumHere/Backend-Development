@@ -73,10 +73,11 @@ export async function login(req, res) {
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production", // false locally, true in prod
+            sameSite: "Lax", // "Strict" can still cause edge-case issues too, Lax is safer for now
+            path: "/",
             maxAge: 7 * 24 * 60 * 60 * 1000
-        });
+        })
 
         await sessionModel.findOneAndUpdate(
             { user: user._id, userAgent: req.headers["user-agent"] },
@@ -137,18 +138,18 @@ export async function logout(req, res) {
             })
         }
 
-        res.clearCookie("refreshToken",refreshToken)
+        res.clearCookie("refreshToken", refreshToken)
 
         session.save()
         return res.status(201).json({
-            message : "Logout successfully"
+            message: "Logout successfully"
         })
 
     }
-    catch(err){
+    catch (err) {
         return res.status(500).json({
-            message : "server error",
-            error : err.message
+            message: "server error",
+            error: err.message
         })
     }
 }
@@ -186,9 +187,9 @@ export async function getMe(req, res) {
             user: { username: user.username, email: user.email }
         })
     }
-    catch(err){
+    catch (err) {
         res.status(500).json({
-            message  : "Server Error"
+            message: "Server Error"
         })
     }
 }
@@ -230,11 +231,12 @@ export async function refreshToken(req, res) {
             expiresIn: "7d"
         })
 
-        res.cookie("refreshToken", newRefreshToken, {
+        res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: "Strict",
-            maxAge: 7 * 24 * 60 * 60 * 100   // 7days 
+            secure: process.env.NODE_ENV === "production", // false locally, true in prod
+            sameSite: "Lax", // "Strict" can still cause edge-case issues too, Lax is safer for now
+            path: "/",
+            maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
         res.status(201).json({

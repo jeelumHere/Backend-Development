@@ -16,6 +16,5 @@ app.use(cors({
     credentials: true,
 }))
 app.use("/api/auth",upload.none(),authRouter)
-app.use("/api/auth",authRouter)
 
 export default app

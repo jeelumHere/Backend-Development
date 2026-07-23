@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import axios from "axios"
 import {useNavigate} from "react-router-dom"
+import {setAccessToken, getAccessToken} from "../api/API";
 
 const Login = () => {
 
@@ -18,9 +19,12 @@ const Login = () => {
 
     const formData = new FormData(ele.target)
     try {
-      const res = await axios.post("/api/auth/login", formData)
+      const res = await axios.post("/api/auth/login", formData ,{withCredentials:true})
       console.log(res.data);
       setMsgResponse(res.data.message)
+      setAccessToken(res.data.accessToken)
+      console.log(res.data.accessToken);
+      console.log('My Access Token : ', getAccessToken());
       setTimeout(() => {
         navigate("/")
       }, 3000);

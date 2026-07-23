@@ -54,8 +54,7 @@ const userLoginValidationRules = [
 
 
 const verifyAccessToken = (req, res, next) => {
-  const authHeader = req.headers.authorization; // "Bearer eyJhbGciOi..."
-  const token = authHeader?.split(" ")[1];
+  const token = req.headers.authorization?.split(" ")[1]; // "Bearer eyJhbGciOi..."
 
   if (!token) return res.status(401).json({ message: "No token provided" });
 

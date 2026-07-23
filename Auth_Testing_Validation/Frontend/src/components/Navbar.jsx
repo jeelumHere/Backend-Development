@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import logo from "../assets/test.jpg"
 import axios from "axios"
+import api, { setAccessToken, getAccessToken } from "./api/API";
 
 const Navbar = () => {
     const navItems = [
@@ -20,14 +21,19 @@ const Navbar = () => {
 
         const getMe = async () => {
             try {
-                const res = await axios.get("/api/auth/getMe", { credentials: true }, {
-                    signal: controller.signal // Link the request to our controller
-                });
-                console.log("Success data:", res.data);
-                if (res.data.User) {
-                    setUserLogin(true)
+                const res1 = await axios.post("/api/auth/refreshToken",{withCredentials:true})
+                setAccessToken(res1.data.accessToken)
+                console.log(getAccessToken())
+                if (getAccessToken()) {
+                    const res = await api.get("/auth/getMe", { withCredentials: true, signal: controller.signal });
+                    console.log("Success data:", res.data);
+                    if (res.data.user) {
+                        setUserLogin(true)
+                        console.log('Hello world');
+                    }
+                    console.log(userLogin);
                 }
-                console.log(userLogin);
+
             }
 
             catch (err) {
@@ -72,7 +78,7 @@ const Navbar = () => {
 
 
                     {/* second part */}
-                    <div className='flex gap-2'>
+                    <ul className='flex gap-2'>
                         {navItems.map((ele) => (
                             <li key={ele.route} className='list-none'>
                                 <NavLink to={ele.route} className={({ isActive }) => `${baseStyle} ${isActive ? activeStyle : ''}`}>
@@ -80,7 +86,7 @@ const Navbar = () => {
                                 </NavLink>
                             </li>
                         ))}
-                    </div>
+                    </ul>
 
 
                     {/* third part  */}

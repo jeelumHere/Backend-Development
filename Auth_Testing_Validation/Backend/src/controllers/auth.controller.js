@@ -166,11 +166,6 @@ export async function getMe(req, res) {
         }
 
         const decoded = jwt.verify(accessToken, config.jwtSecret)
-        if (!decoded) {
-            return res.status(401).json({
-                message: "accessToken not verified"
-            })
-        }
 
 
         const user = await userModel.findById(decoded.id);
@@ -198,12 +193,17 @@ export async function refreshToken(req, res) {
 
     try {
         const refreshToken = req.cookies.refreshToken;
+        if(!refreshToken){
+            return res.status(401).json({
+                message : "refresh token not found"
+            })
+        }
         const decoded = jwt.verify(refreshToken, config.jwtSecret)
 
-        const refreshTokenHash = crypto.createHash("sha256").update(refreshToken).digest("hex")
 
         const session = await sessionModel.findOne({
-            refreshTokenHash,
+            // refreshTokenHash:refreshToken,
+            userAgent : req.headers["user-agent"],
             revoked: false
         })
 
@@ -228,7 +228,7 @@ export async function refreshToken(req, res) {
         const accessToken = jwt.sign({
             id: decoded.id
         }, config.jwtSecret, {
-            expiresIn: "7d"
+            expiresIn: "15m"
         })
 
         res.cookie("refreshToken", refreshToken, {
